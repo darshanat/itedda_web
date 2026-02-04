@@ -4,7 +4,7 @@ const Header = () => {
   return (
     <header>
       <nav>
-        <a href="#" className="logo">
+        <a href="#home" className="logo">
             <img 
               src="/iTEDDA.png" 
               alt="iTEDDA Logo" 
