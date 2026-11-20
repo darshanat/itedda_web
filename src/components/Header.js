@@ -15,7 +15,7 @@ const Header = () => {
                 verticalAlign: 'middle'
               }} 
             />
-            <span style={{ color: "#FF3B30", fontFamily: "Calibri, sans-serif" }}>i</span><span style={{ color: "#fff", fontFamily: "Calibri, sans-serif" }}>TEDDA</span>
+            <span style={{ color: "#ff5a5f", fontFamily: "Calibri, sans-serif" }}>i</span><span style={{ color: "#fff", fontFamily: "Calibri, sans-serif" }}>TEDDA</span>
         </a>
         <ul className="nav-links">
           <li><a href="#home">Home</a></li>

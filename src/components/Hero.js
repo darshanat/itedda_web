@@ -12,14 +12,23 @@ const Hero = () => {
               height: '150px', 
               width: 'auto', 
               maxWidth: '100%',
-              filter: 'drop-shadow(0 0 20px rgba(6, 30, 18, 0.5))'
+              filter: 'drop-shadow(0 0 20px rgba(34, 177, 76, 0.35))'
             }} 
           />
         </div>
-        <p>Expert PCB Designer</p>
+        <p className="hero-tagline">
+          Turning Ideas<br />Into Technology<br />Solutions
+        </p>
+        <h1>
+          Technology Solutions<br />
+          For <span className="g">Business</span>{' '}
+          <span className="r">Growth</span>
+        </h1>
         <p>
-          Transforming circuit concepts into manufacturable reality with
-          precision and innovation
+          We are a technology company based in Sri Lanka, specializing in
+          electronic product development, software development and digital
+          marketing. We help businesses turn innovative ideas into scalable,
+          reliable and result-driven technology solutions.
         </p>
         <a href="#contact" className="cta-button">Start Your Project</a>
       </div>

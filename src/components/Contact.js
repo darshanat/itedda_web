@@ -4,7 +4,7 @@ const Contact = () => {
   // Contact information - Update these with your actual details
   const contactInfo = {
     phone: "+94 71 283 8291",
-    email: "itedda.ict@gmail.com",
+    email: "info@itedda.lk",
     whatsapp: "+94 71 283 8291",
     facebook: "https://www.facebook.com/share/17xNWX5n7T/",
     address: "TMIC Thennakoon, Mawathagama, Sri Lanka",
@@ -19,8 +19,9 @@ const Contact = () => {
         <div className="contact-content fade-in">
           <h2 className="section-title">Let's Work Together</h2>
           <p>
-            Ready to bring your electronic project to life? Get in touch and
-            let's discuss how I can help make your vision a reality.
+            Whether you need a smart electronic device, a powerful software
+            application, or a result-driven digital marketing strategy, we are
+            here to help.
           </p>
 
           {/* Contact Info Cards */}
@@ -49,6 +50,17 @@ const Contact = () => {
               <div className="contact-icon">💬</div>
               <h4>WhatsApp</h4>
               <p>{contactInfo.whatsapp}</p>
+            </a>
+
+            <a
+              href="https://www.itedda.lk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="contact-info-card"
+            >
+              <div className="contact-icon">🌐</div>
+              <h4>Website</h4>
+              <p>www.itedda.lk</p>
             </a>
 
             <a

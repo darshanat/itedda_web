@@ -12,6 +12,8 @@ const About = () => {
     "Power Electronics",
     "Web Development",
     "Mobile Development",
+    "SEO",
+    "Social Media Marketing",
   ];
 
   const stats = [
@@ -28,8 +30,11 @@ const About = () => {
           <div className="about-text fade-in">
             <h2>About Us</h2>
             <p>
-              <strong>iTEDDA (Pvt)Ltd</strong> is a professional designing
-              company, which provides developments and manufacturing services.
+              <strong>iTEDDA (Pvt)Ltd</strong> is a technology company based
+              in Sri Lanka, specializing in{" "}
+              <strong>electronic product development</strong>,{" "}
+              <strong>software development</strong> and{" "}
+              <strong>digital marketing</strong>.
             </p>
             <p>
               We execute all services based on <strong>schematic design</strong>
@@ -39,8 +44,8 @@ const About = () => {
               <strong>Software development</strong>.
             </p>
             <p>
-              Our team is well experienced in bringing your ideas to innovative
-              and accomplished outcomes.
+              We help businesses turn innovative ideas into scalable, reliable and
+              result-driven technology solutions.
             </p>
 
             <div className="skills">

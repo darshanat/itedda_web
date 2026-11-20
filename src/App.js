@@ -5,6 +5,7 @@ import Services from './components/Services';
 import Portfolio from './components/Portfolio';
 import Gallery from './components/Gallery';
 import About from './components/About';
+import Values from './components/Values';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 
@@ -52,9 +53,9 @@ function App() {
     const handleScroll = () => {
       const header = document.querySelector("header");
       if (window.scrollY > 100) {
-        header.style.background = "rgba(0, 0, 0, 0.95)";
+        header.style.background = "rgba(13, 15, 16, 0.95)";
       } else {
-        header.style.background = "rgba(0, 0, 0, 0.9)";
+        header.style.background = "rgba(13, 15, 16, 0.9)";
       }
     };
 
@@ -79,6 +80,7 @@ function App() {
       <Portfolio />
       <Gallery />
       <About />
+      <Values />
       <Contact />
       <Footer />
     </div>

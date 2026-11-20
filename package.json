@@ -9,9 +9,11 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "three": "^0.160.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "models": "node --max-old-space-size=8192 scripts/wrl-to-glb.mjs",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -34,5 +36,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gltf-pipeline": "^4.3.1"
   }
 }
