@@ -1,11 +1,18 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import BoardViewer from "./BoardViewer";
+import Icon from "./Icon";
+import SectionHead from "./SectionHead";
+import { useModal } from "../hooks/useInteractions";
 
 const Portfolio = () => {
   const scrollRef = useRef(null);
+  const drag = useRef(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("photos");
+  const [progress, setProgress] = useState(0);
+  const [canScroll, setCanScroll] = useState({ left: false, right: true });
 
   const projects = [
     {
@@ -86,32 +93,65 @@ const Portfolio = () => {
   // One converted model is still unassigned: wireless-charger.glb. Add an entry
   // above with `model: "/models/wireless-charger.glb"` to surface it.
 
+  const updateProgress = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setProgress(max > 0 ? el.scrollLeft / max : 0);
+    setCanScroll({ left: el.scrollLeft > 4, right: el.scrollLeft < max - 4 });
+  }, []);
+
+  useEffect(() => {
+    updateProgress();
+    window.addEventListener("resize", updateProgress);
+    return () => window.removeEventListener("resize", updateProgress);
+  }, [updateProgress]);
+
   const scroll = (direction) => {
-    if (scrollRef.current) {
-      const scrollAmount = 350;
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
+    const el = scrollRef.current;
+    if (!el) return;
+    const card = el.querySelector(".portfolio-item");
+    const amount = (card ? card.offsetWidth : 340) + 24;
+    el.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
+  };
+
+  // Click-and-drag to scroll on desktop; touch devices already scroll natively.
+  const onPointerDown = (e) => {
+    if (e.pointerType !== "mouse") return;
+    const el = scrollRef.current;
+    drag.current = { x: e.clientX, left: el.scrollLeft, moved: false };
+    el.classList.add("is-dragging");
+  };
+  const onPointerMove = (e) => {
+    const d = drag.current;
+    if (!d) return;
+    const dx = e.clientX - d.x;
+    if (Math.abs(dx) > 5) d.moved = true;
+    scrollRef.current.scrollLeft = d.left - dx;
+  };
+  const endDrag = () => {
+    if (!drag.current) return;
+    scrollRef.current.classList.remove("is-dragging");
+    // Keep `moved` readable for the click that follows this pointerup.
+    setTimeout(() => (drag.current = null), 0);
   };
 
   const openModal = (project) => {
+    if (drag.current && drag.current.moved) return;
     setSelectedProject(project);
     setCurrentImageIndex(0);
     // Prefer photos: the 3D tab mounts the viewer, and nobody should pay for
     // that download until they ask for it. Model-only projects have no photos
     // to fall back to, so they open straight into the viewer.
     setActiveTab(project.gallery ? "photos" : "3d");
-    document.body.style.overflow = "hidden";
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setSelectedProject(null);
     setCurrentImageIndex(0);
     setActiveTab("photos");
-    document.body.style.overflow = "auto";
-  };
+  }, []);
+  useModal(Boolean(selectedProject), closeModal);
 
   const nextImage = () => {
     if (selectedProject) {
@@ -132,126 +172,164 @@ const Portfolio = () => {
   return (
     <section id="portfolio" className="portfolio">
       <div className="container">
-        <h2 className="section-title fade-in">Recent Projects</h2>
-        <div className="portfolio-wrapper">
-          <button
-            className="scroll-btn scroll-left"
-            onClick={() => scroll("left")}
-            aria-label="Scroll left"
-          >
-            &#8249;
-          </button>
-          <div className="portfolio-scroll" ref={scrollRef}>
-            {projects.map((project, index) => (
-              <div
-                key={index}
-                className="portfolio-item fade-in"
-                onClick={() => openModal(project)}
-              >
-                <div className="portfolio-image">
-                  {project.image ? (
-                    <img src={project.image} alt={project.title} />
-                  ) : (
-                    <div className="portfolio-image-placeholder">
-                      <span className="placeholder-icon">◈</span>
-                      <span className="placeholder-label">3D Model</span>
-                    </div>
-                  )}
-                </div>
-                <div className="portfolio-content">
-                  <h4>{project.title}</h4>
-                  <p>{project.description}</p>
-                  <span className="view-details">
-                    {project.gallery
-                      ? "Click to view details"
-                      : "Click to view in 3D"}
-                  </span>
+        <SectionHead
+          index="03"
+          label="Portfolio"
+          title={<>Recent <span className="grad-text">projects</span></>}
+        >
+          Real boards, real enclosures. Open any project to explore photos or spin
+          the 3D model.
+        </SectionHead>
+      </div>
+
+      <div className="portfolio-wrapper">
+        <div
+          className="portfolio-scroll"
+          ref={scrollRef}
+          onScroll={updateProgress}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerLeave={endDrag}
+        >
+          {projects.map((project, index) => (
+            <article
+              key={project.title}
+              className="portfolio-item"
+              data-spot
+              tabIndex={0}
+              role="button"
+              aria-label={`Open ${project.title}`}
+              onClick={() => openModal(project)}
+              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), openModal(project))}
+            >
+              <div className="portfolio-image">
+                {project.image ? (
+                  <img src={project.image} alt={project.title} loading="lazy" draggable="false" />
+                ) : (
+                  <div className="portfolio-image-placeholder">
+                    <Icon name="cube" size={46} />
+                    <span className="placeholder-label">3D Model</span>
+                  </div>
+                )}
+                <span className="portfolio-index">{String(index + 1).padStart(2, "0")}</span>
+                <div className="portfolio-tags">
+                  {project.gallery && <span><Icon name="image" size={13} /> Photos</span>}
+                  {project.model && <span className="is-3d"><Icon name="rotate3d" size={13} /> 3D</span>}
                 </div>
               </div>
-            ))}
+              <div className="portfolio-content">
+                <h4>{project.title}</h4>
+                <p>{project.description}</p>
+                <span className="view-details">
+                  {project.gallery ? "View project" : "View in 3D"}
+                  <Icon name="arrowUpRight" size={15} />
+                </span>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="container portfolio-controls">
+          <div className="progress-rail" aria-hidden="true">
+            <i style={{ transform: `scaleX(${0.12 + progress * 0.88})` }} />
           </div>
-          <button
-            className="scroll-btn scroll-right"
-            onClick={() => scroll("right")}
-            aria-label="Scroll right"
-          >
-            &#8250;
-          </button>
+          <div className="carousel-btns">
+            <button
+              className="icon-btn"
+              onClick={() => scroll("left")}
+              disabled={!canScroll.left}
+              aria-label="Previous projects"
+            >
+              <Icon name="left" size={20} />
+            </button>
+            <button
+              className="icon-btn"
+              onClick={() => scroll("right")}
+              disabled={!canScroll.right}
+              aria-label="Next projects"
+            >
+              <Icon name="right" size={20} />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Modal Popup */}
-      {selectedProject && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={closeModal}>
-              &times;
-            </button>
+      {selectedProject &&
+        createPortal(
+          <div className="modal-overlay" onClick={closeModal} role="dialog" aria-modal="true" aria-label={selectedProject.title}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={closeModal} aria-label="Close">
+                <Icon name="close" size={18} />
+              </button>
 
-            {selectedProject.model && selectedProject.gallery && (
-              <div className="modal-tabs">
-                <button
-                  className={`modal-tab ${activeTab === "photos" ? "active" : ""}`}
-                  onClick={() => setActiveTab("photos")}
-                >
-                  Photos
-                </button>
-                <button
-                  className={`modal-tab ${activeTab === "3d" ? "active" : ""}`}
-                  onClick={() => setActiveTab("3d")}
-                >
-                  3D View
-                </button>
-              </div>
-            )}
-
-            {(activeTab === "3d" || !selectedProject.gallery) &&
-            selectedProject.model ? (
-              <BoardViewer
-                src={selectedProject.model}
-                title={selectedProject.title}
-              />
-            ) : (
-              <>
-                <div className="modal-gallery">
-                  {selectedProject.gallery.length > 1 && (
-                    <button className="gallery-btn gallery-prev" onClick={prevImage}>
-                      &#8249;
-                    </button>
-                  )}
-                  <img
-                    src={selectedProject.gallery[currentImageIndex]}
-                    alt={selectedProject.title}
-                    className="modal-image"
-                  />
-                  {selectedProject.gallery.length > 1 && (
-                    <button className="gallery-btn gallery-next" onClick={nextImage}>
-                      &#8250;
-                    </button>
-                  )}
+              {selectedProject.model && selectedProject.gallery && (
+                <div className="modal-tabs">
+                  <button
+                    className={`modal-tab ${activeTab === "photos" ? "active" : ""}`}
+                    onClick={() => setActiveTab("photos")}
+                  >
+                    <Icon name="image" size={16} /> Photos
+                  </button>
+                  <button
+                    className={`modal-tab ${activeTab === "3d" ? "active" : ""}`}
+                    onClick={() => setActiveTab("3d")}
+                  >
+                    <Icon name="rotate3d" size={16} /> 3D View
+                  </button>
                 </div>
+              )}
 
-                {selectedProject.gallery.length > 1 && (
-                  <div className="gallery-dots">
-                    {selectedProject.gallery.map((_, index) => (
-                      <span
-                        key={index}
-                        className={`dot ${index === currentImageIndex ? "active" : ""}`}
-                        onClick={() => setCurrentImageIndex(index)}
-                      ></span>
-                    ))}
+              {(activeTab === "3d" || !selectedProject.gallery) &&
+              selectedProject.model ? (
+                <BoardViewer
+                  src={selectedProject.model}
+                  title={selectedProject.title}
+                />
+              ) : (
+                <>
+                  <div className="modal-gallery">
+                    {selectedProject.gallery.length > 1 && (
+                      <button className="gallery-btn gallery-prev" onClick={prevImage} aria-label="Previous image">
+                        <Icon name="left" size={20} />
+                      </button>
+                    )}
+                    <img
+                      key={currentImageIndex}
+                      src={selectedProject.gallery[currentImageIndex]}
+                      alt={selectedProject.title}
+                      className="modal-image"
+                    />
+                    {selectedProject.gallery.length > 1 && (
+                      <button className="gallery-btn gallery-next" onClick={nextImage} aria-label="Next image">
+                        <Icon name="right" size={20} />
+                      </button>
+                    )}
                   </div>
-                )}
-              </>
-            )}
 
-            <div className="modal-info">
-              <h3>{selectedProject.title}</h3>
-              <p>{selectedProject.description}</p>
+                  {selectedProject.gallery.length > 1 && (
+                    <div className="gallery-dots">
+                      {selectedProject.gallery.map((_, index) => (
+                        <button
+                          key={index}
+                          aria-label={`Image ${index + 1}`}
+                          className={`dot ${index === currentImageIndex ? "active" : ""}`}
+                          onClick={() => setCurrentImageIndex(index)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
+              <div className="modal-info">
+                <h3>{selectedProject.title}</h3>
+                <p>{selectedProject.description}</p>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </section>
   );
 };

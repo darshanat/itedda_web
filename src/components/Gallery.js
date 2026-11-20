@@ -1,137 +1,107 @@
-import React, { useState, useRef } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import Icon from "./Icon";
+import SectionHead from "./SectionHead";
+import { useModal } from "../hooks/useInteractions";
+
+const images = Array.from({ length: 19 }, (_, i) => `/gallery/design-${i + 1}.jpg`);
+const rows = [images.slice(0, 10), images.slice(10)];
 
 const Gallery = () => {
-  const [selectedImage, setSelectedImage] = useState(null);
-  const scrollRef = useRef(null);
+  const [selected, setSelected] = useState(null); // index into images
 
-  const images = [
-    "/gallery/design-1.jpg",
-    "/gallery/design-2.jpg",
-    "/gallery/design-3.jpg",
-    "/gallery/design-4.jpg",
-    "/gallery/design-5.jpg",
-    "/gallery/design-6.jpg",
-    "/gallery/design-7.jpg",
-    "/gallery/design-8.jpg",
-    "/gallery/design-9.jpg",
-    "/gallery/design-10.jpg",
-    "/gallery/design-11.jpg",
-    "/gallery/design-12.jpg",
-    "/gallery/design-13.jpg",
-    "/gallery/design-14.jpg",
-    "/gallery/design-15.jpg",
-    "/gallery/design-16.jpg",
-    "/gallery/design-17.jpg",
-    "/gallery/design-18.jpg",
-    "/gallery/design-19.jpg",
-  ];
+  const close = useCallback(() => setSelected(null), []);
+  useModal(selected !== null, close);
 
-  const openLightbox = (image) => {
-    setSelectedImage(image);
-    document.body.style.overflow = "hidden";
-  };
+  const step = useCallback(
+    (dir) =>
+      setSelected((i) => (i === null ? i : (i + dir + images.length) % images.length)),
+    []
+  );
 
-  const closeLightbox = () => {
-    setSelectedImage(null);
-    document.body.style.overflow = "auto";
-  };
-
-  const navigateImage = (direction) => {
-    const currentIndex = images.indexOf(selectedImage);
-    let newIndex;
-    if (direction === "next") {
-      newIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
-    } else {
-      newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
-    }
-    setSelectedImage(images[newIndex]);
-  };
-
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const scrollAmount = 400;
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
+  useEffect(() => {
+    if (selected === null) return undefined;
+    const onKey = (e) => {
+      if (e.key === "ArrowRight") step(1);
+      if (e.key === "ArrowLeft") step(-1);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [selected, step]);
 
   return (
     <section id="gallery" className="gallery">
       <div className="container">
-        <h2 className="section-title fade-in">Design Gallery</h2>
-        <p className="gallery-subtitle fade-in">
-          Explore our collection of PCB designs and electronic projects
-        </p>
-
-        <div className="gallery-wrapper">
-          <button
-            className="gallery-scroll-btn gallery-scroll-left"
-            onClick={() => scroll("left")}
-            aria-label="Scroll left"
-          >
-            &#8249;
-          </button>
-          <div className="gallery-scroll" ref={scrollRef}>
-            {images.map((image, index) => (
-              <div
-                key={index}
-                className="gallery-item fade-in"
-                onClick={() => openLightbox(image)}
-              >
-                <img src={image} alt={`PCB Design ${index + 1}`} />
-                <div className="gallery-overlay">
-                  <span>View</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          <button
-            className="gallery-scroll-btn gallery-scroll-right"
-            onClick={() => scroll("right")}
-            aria-label="Scroll right"
-          >
-            &#8250;
-          </button>
-        </div>
+        <SectionHead
+          index="04"
+          label="Gallery"
+          title={<>Design <span className="grad-text">gallery</span></>}
+        >
+          Explore our collection of PCB designs and electronic projects.
+        </SectionHead>
       </div>
 
-      {/* Lightbox */}
-      {selectedImage && (
-        <div className="lightbox" onClick={closeLightbox}>
-          <button className="lightbox-close" onClick={closeLightbox}>
-            &times;
-          </button>
-          <button
-            className="lightbox-nav lightbox-prev"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigateImage("prev");
-            }}
-          >
-            &#8249;
-          </button>
-          <img
-            src={selectedImage}
-            alt="PCB Design"
-            className="lightbox-image"
-            onClick={(e) => e.stopPropagation()}
-          />
-          <button
-            className="lightbox-nav lightbox-next"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigateImage("next");
-            }}
-          >
-            &#8250;
-          </button>
-          <div className="lightbox-counter">
-            {images.indexOf(selectedImage) + 1} / {images.length}
+      <div className="gallery-rows">
+        {rows.map((row, r) => (
+          <div key={r} className={`gallery-row ${r === 1 ? "reverse" : ""}`}>
+            <div className="gallery-track">
+              {[0, 1].map((copy) => (
+                <div className="gallery-set" key={copy} aria-hidden={copy === 1}>
+                  {row.map((src) => (
+                    <button
+                      type="button"
+                      key={src}
+                      className="gallery-item"
+                      tabIndex={copy === 1 ? -1 : 0}
+                      aria-label="Open design image"
+                      onClick={() => setSelected(images.indexOf(src))}
+                    >
+                      <img src={src} alt="" loading="lazy" draggable="false" />
+                      <span className="gallery-overlay">
+                        <Icon name="expand" size={22} />
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
+
+      {selected !== null &&
+        createPortal(
+          <div className="lightbox" onClick={close} role="dialog" aria-modal="true" aria-label="Design gallery">
+            <button className="lightbox-close icon-btn" onClick={close} aria-label="Close">
+              <Icon name="close" size={20} />
+            </button>
+            <button
+              className="lightbox-nav lightbox-prev icon-btn"
+              onClick={(e) => { e.stopPropagation(); step(-1); }}
+              aria-label="Previous image"
+            >
+              <Icon name="left" size={22} />
+            </button>
+            <img
+              key={selected}
+              src={images[selected]}
+              alt={`PCB design ${selected + 1}`}
+              className="lightbox-image"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button
+              className="lightbox-nav lightbox-next icon-btn"
+              onClick={(e) => { e.stopPropagation(); step(1); }}
+              aria-label="Next image"
+            >
+              <Icon name="right" size={22} />
+            </button>
+            <div className="lightbox-counter">
+              {String(selected + 1).padStart(2, "0")} / {images.length}
+            </div>
+          </div>,
+          document.body
+        )}
     </section>
   );
 };

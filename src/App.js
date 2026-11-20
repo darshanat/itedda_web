@@ -1,87 +1,40 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
+import TechMarquee from './components/TechMarquee';
 import Services from './components/Services';
+import Process from './components/Process';
 import Portfolio from './components/Portfolio';
 import Gallery from './components/Gallery';
 import About from './components/About';
 import Values from './components/Values';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import { useInteractions, useReveal } from './hooks/useInteractions';
 
 function App() {
-  useEffect(() => {
-    // Smooth scrolling for navigation links
-    const handleSmoothScroll = (e) => {
-      if (e.target.hash) {
-        e.preventDefault();
-        const target = document.querySelector(e.target.hash);
-        if (target) {
-          target.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }
-      }
-    };
-
-    // Add event listeners to all navigation links
-    const navLinks = document.querySelectorAll('a[href^="#"]');
-    navLinks.forEach(link => {
-      link.addEventListener('click', handleSmoothScroll);
-    });
-
-    // Fade in animation on scroll
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: "0px 0px -50px 0px",
-    };
-
-    const observer = new IntersectionObserver(function (entries) {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-        }
-      });
-    }, observerOptions);
-
-    document.querySelectorAll(".fade-in").forEach((el) => {
-      observer.observe(el);
-    });
-
-    // Header background change on scroll
-    const handleScroll = () => {
-      const header = document.querySelector("header");
-      if (window.scrollY > 100) {
-        header.style.background = "rgba(13, 15, 16, 0.95)";
-      } else {
-        header.style.background = "rgba(13, 15, 16, 0.9)";
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    // Cleanup function
-    return () => {
-      navLinks.forEach(link => {
-        link.removeEventListener('click', handleSmoothScroll);
-      });
-      window.removeEventListener("scroll", handleScroll);
-      observer.disconnect();
-    };
-  }, []);
+  useInteractions();
+  useReveal();
 
   return (
     <div className="App">
-      <div className="circuit-bg"></div>
+      <div className="ambient" aria-hidden="true">
+        <div className="ambient-grid" />
+        <div className="ambient-glow" />
+      </div>
+      <div className="cursor-glow" aria-hidden="true" />
       <Header />
-      <Hero />
-      <Services />
-      <Portfolio />
-      <Gallery />
-      <About />
-      <Values />
-      <Contact />
+      <main>
+        <Hero />
+        <TechMarquee />
+        <Services />
+        <Process />
+        <Portfolio />
+        <Gallery />
+        <About />
+        <Values />
+        <Contact />
+      </main>
       <Footer />
     </div>
   );

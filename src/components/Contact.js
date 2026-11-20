@@ -1,4 +1,5 @@
 import React from "react";
+import Icon from "./Icon";
 
 const Contact = () => {
   // Contact information - Update these with your actual details
@@ -13,91 +14,94 @@ const Contact = () => {
     mapLink: "https://maps.app.goo.gl/4bANHN95pCAwqse8A",
   };
 
+  const cards = [
+    { icon: "phone", title: "Phone", text: contactInfo.phone, href: `tel:${contactInfo.phone}` },
+    { icon: "mail", title: "Email", text: contactInfo.email, href: `mailto:${contactInfo.email}` },
+    {
+      icon: "chat",
+      title: "WhatsApp",
+      text: contactInfo.whatsapp,
+      href: `https://wa.me/${contactInfo.whatsapp.replace(/[\s+]+/g, "")}`,
+      external: true,
+      cls: "whatsapp",
+    },
+    { icon: "globe", title: "Website", text: "www.itedda.lk", href: "https://www.itedda.lk", external: true },
+    { icon: "facebook", title: "Facebook", text: "iTEDDA", href: contactInfo.facebook, external: true, cls: "facebook" },
+  ];
+
   return (
     <section id="contact" className="contact">
       <div className="container">
-        <div className="contact-content fade-in">
-          <h2 className="section-title">Let's Work Together</h2>
+        <div className="contact-hero fade-in" data-spot>
+          <span className="eyebrow">
+            <i className="eyebrow-dot" />
+            <span className="eyebrow-index">07</span>
+            <span className="eyebrow-label">Contact</span>
+          </span>
+          <h2 className="contact-title">
+            Let's build something <span className="grad-text">remarkable</span> together.
+          </h2>
           <p>
             Whether you need a smart electronic device, a powerful software
             application, or a result-driven digital marketing strategy, we are
             here to help.
           </p>
-
-          {/* Contact Info Cards */}
-          <div className="contact-info-grid">
-            <a href={`tel:${contactInfo.phone}`} className="contact-info-card">
-              <div className="contact-icon">📞</div>
-              <h4>Phone</h4>
-              <p>{contactInfo.phone}</p>
+          <div className="contact-actions">
+            <a href={`mailto:${contactInfo.email}`} className="btn btn-primary btn-lg" data-magnet>
+              Email Us <Icon name="arrow" size={18} />
             </a>
-
             <a
-              href={`mailto:${contactInfo.email}`}
-              className="contact-info-card"
-            >
-              <div className="contact-icon">✉️</div>
-              <h4>Email</h4>
-              <p>{contactInfo.email}</p>
-            </a>
-
-            <a
-              href={`https://wa.me/${contactInfo.whatsapp.replace(/\s+/g, "")}`}
+              href={cards[2].href}
               target="_blank"
               rel="noopener noreferrer"
-              className="contact-info-card whatsapp"
+              className="btn btn-ghost btn-lg"
+              data-magnet
             >
-              <div className="contact-icon">💬</div>
-              <h4>WhatsApp</h4>
-              <p>{contactInfo.whatsapp}</p>
-            </a>
-
-            <a
-              href="https://www.itedda.lk"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="contact-info-card"
-            >
-              <div className="contact-icon">🌐</div>
-              <h4>Website</h4>
-              <p>www.itedda.lk</p>
-            </a>
-
-            <a
-              href={contactInfo.facebook}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="contact-info-card facebook"
-            >
-              <div className="contact-icon">📘</div>
-              <h4>Facebook</h4>
-              <p>iTEDDA</p>
+              Chat on WhatsApp
             </a>
           </div>
+        </div>
 
-          {/* Location Section */}
-          <div className="location-section">
-            <div className="map-container">
-              <iframe
-                src={contactInfo.mapEmbedUrl}
-                width="100%"
-                height="300"
-                style={{ border: 0, borderRadius: "15px" }}
-                allowFullScreen=""
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Location Map"
-              ></iframe>
-            </div>
+        <div className="contact-info-grid">
+          {cards.map((c, i) => (
             <a
-              href={contactInfo.mapLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="address-card"
+              key={c.title}
+              href={c.href}
+              className={`contact-info-card fade-in ${c.cls || ""} tone-${i % 2 ? "r" : "g"}`}
+              style={{ "--d": `${i * 70}ms` }}
+              data-spot
+              {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             >
-              <p>{contactInfo.address}</p>
+              <span className="contact-icon"><Icon name={c.icon} size={22} /></span>
+              <h4>{c.title}</h4>
+              <p>{c.text}</p>
             </a>
+          ))}
+        </div>
+
+        <div className="location-section fade-in">
+          <div className="map-container">
+            <iframe
+              src={contactInfo.mapEmbedUrl}
+              width="100%"
+              height="320"
+              style={{ border: 0 }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Location Map"
+            ></iframe>
           </div>
+          <a
+            href={contactInfo.mapLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="address-card"
+          >
+            <span className="contact-icon"><Icon name="pin" size={20} /></span>
+            <p>{contactInfo.address}</p>
+            <Icon name="arrowUpRight" size={18} className="address-arrow" />
+          </a>
         </div>
       </div>
     </section>
