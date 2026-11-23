@@ -187,6 +187,95 @@ const Services = () => {
           ]
         }
       ]
+    },
+    {
+      number: "03",
+      group: "Digital Marketing",
+      pillarTitle: "Growth, Visibility & Brand Presence",
+      intro:
+        "Great products need to be found. We help technology businesses reach the right customers online, with search visibility, targeted advertising, engaging content, and measurable results, so your launch builds momentum and your brand keeps growing after it.",
+      items: [
+        {
+          icon: "search",
+          title: "SEO & Website Optimization",
+          description:
+            "We make sure customers searching for what you offer find you first. We tune your website's content, structure, and speed so it ranks higher on Google and converts visitors into enquiries.",
+          points: [
+            {
+              label: "Keyword & Market Research",
+              text: "Identifying the terms your buyers actually search for, in both local and international markets."
+            },
+            {
+              label: "On-Page & Technical SEO",
+              text: "Optimizing page titles, metadata, site structure, mobile performance, and loading speed."
+            },
+            {
+              label: "Local & Business Listings",
+              text: "Setting up and managing your Google Business Profile and directory presence to win local searches."
+            }
+          ]
+        },
+        {
+          icon: "megaphone",
+          title: "Social Media Marketing",
+          description:
+            "We build and run your brand's presence on the platforms where your customers spend their time, turning your engineering expertise into content people want to follow and share.",
+          points: [
+            {
+              label: "Channel Strategy",
+              text: "Choosing the right mix of LinkedIn, Facebook, Instagram, and YouTube for your audience and goals."
+            },
+            {
+              label: "Content Creation",
+              text: "Designing posts, product showcases, and short videos that explain your technology clearly."
+            },
+            {
+              label: "Community Management",
+              text: "Publishing on a consistent schedule and responding to comments and messages promptly."
+            }
+          ]
+        },
+        {
+          icon: "trend",
+          title: "Paid Advertising & Lead Generation",
+          description:
+            "When you need results faster, we plan and manage paid campaigns that put your product in front of qualified buyers while keeping every rupee accountable.",
+          points: [
+            {
+              label: "Search & Social Ads",
+              text: "Managing Google Ads and Meta campaigns with precise audience targeting."
+            },
+            {
+              label: "Landing Pages & Funnels",
+              text: "Building focused pages and enquiry forms that turn clicks into leads."
+            },
+            {
+              label: "Budget Optimization",
+              text: "Continuously testing and adjusting spend toward the campaigns that perform best."
+            }
+          ]
+        },
+        {
+          icon: "chat",
+          title: "Content, Branding & Analytics",
+          description:
+            "Consistent messaging builds trust, and clear data shows what is working. We shape your brand voice and track performance so every marketing decision is backed by numbers.",
+          points: [
+            {
+              label: "Brand Identity & Messaging",
+              text: "Defining your visual style, tone of voice, and product story across every channel."
+            },
+            {
+              label: "Content Marketing",
+              text: "Producing case studies, blog articles, and product guides that demonstrate your expertise."
+            },
+            {
+              label: "Reporting & Insights",
+              text: "Using Google Analytics and campaign dashboards to report on traffic, leads, and return on investment."
+            }
+          ]
+        }
+      ]
     }
   ];
 
@@ -264,7 +353,8 @@ const Services = () => {
             Whether you need a standalone hardware device, a powerful software
             platform, or a seamlessly integrated IoT ecosystem, our
             multi-disciplinary team turns your vision into a market-ready
-            reality.
+            reality. And once it is built, our Digital Marketing service helps
+            the right customers find it.
           </p>
         </div>
 
@@ -272,7 +362,7 @@ const Services = () => {
           {subcategoryGroups.map((group, gi) => (
             <div
               key={group.group}
-              className={`subcategory-group fade-in tone-${gi === 0 ? "g" : "r"}`}
+              className={`subcategory-group fade-in tone-${gi % 2 === 0 ? "g" : "r"}`}
               style={{ "--d": `${gi * 120}ms` }}
             >
               <div className="category-header">
